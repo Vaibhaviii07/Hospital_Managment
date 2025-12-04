@@ -75,7 +75,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <div className="p-4 border-t border-indigo-600 mt-auto">
           <button
             onClick={handleLogout}
-            className="w-full py-3 px-4 rounded-lg bg-black-400 text-white font-medium hover:bg-black-700 transition"
+            className="w-full py-3 px-4 cursor-pointer rounded-lg bg-black-400 text-white font-medium hover:bg-black-700 transition"
           >
             Logout
           </button>

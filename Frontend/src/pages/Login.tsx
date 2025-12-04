@@ -31,8 +31,9 @@ const Login = () => {
     setLoading(true);
 
     try {
+      console.log(formData.email, formData.password);
       const response = await authAPI.login(formData.email, formData.password);
-
+      console.log(response);
       // Save token
       setAuthToken(response.data.token);
 

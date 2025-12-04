@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon --watch './**/*.ts' --exec ts-node server.ts",
-    "start": "node dist/server.js"
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "admin": "node dist/seedAdmin.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

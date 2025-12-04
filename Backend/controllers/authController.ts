@@ -20,12 +20,25 @@ export const registerAdmin = async (req: Request, res: Response) => {
     token: generateToken(user._id, user.role),
   });
 };
-
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  if (!user || !(await user.matchPassword(password))) {
-    return res.status(401).json({ message: 'Invalid email or password' });
+  
+  console.log("Request body:", req.body);
+
+  const user = await User.findOne({ email: email.trim() });
+  console.log("Found user:", user);
+
+  if (!user) {
+    console.log("User not found");
+    return res.status(401).json({ message: "Invalid email or password" });
+  }
+
+  const isMatch = await user.matchPassword(password);
+  console.log("Password match:", isMatch);
+
+  if (!isMatch) {
+    console.log("Password does not match");
+    return res.status(401).json({ message: "Invalid email or password" });
   }
 
   res.json({
