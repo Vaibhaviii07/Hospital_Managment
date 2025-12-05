@@ -10,6 +10,7 @@ interface Doctor {
   specialization: string;
   phone: string;
   hospitalName: string;
+  // password?: string;  // usually password is NOT returned from backend
 }
 
 interface FormData {
@@ -18,6 +19,7 @@ interface FormData {
   specialization: string;
   phone: string;
   hospitalName: string;
+  password: string;  // ⬅ added here
 }
 
 interface Message {
@@ -38,6 +40,7 @@ const DoctorManagement = () => {
     specialization: "",
     phone: "",
     hospitalName: "",
+    password: "",  // ⬅ added
   });
 
   useEffect(() => {
@@ -60,27 +63,31 @@ const DoctorManagement = () => {
   };
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    try {
-      if (editingDoctor) {
-        await doctorAPI.updateDoctor(editingDoctor._id, formData);
-        setMessage({ type: "success", text: "Doctor updated successfully" });
-      } else {
-        await doctorAPI.createDoctor(formData);
-        setMessage({
-          type: "success",
-          text: "Doctor created successfully",
-        });
-      }
-      resetForm();
-      fetchDoctors();
-    } catch (error: any) {
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Error saving doctor",
-      });
+  e.preventDefault();
+  try {
+    if (editingDoctor) {
+      const updateData = {
+        ...formData,
+        ...(formData.password ? {} : { password: undefined })
+      };
+
+      await doctorAPI.updateDoctor(editingDoctor._id, updateData);
+      setMessage({ type: "success", text: "Doctor updated successfully" });
+    } else {
+      await doctorAPI.createDoctor(formData);
+      setMessage({ type: "success", text: "Doctor created successfully" });
     }
-  };
+
+    resetForm();
+    fetchDoctors();
+  } catch (error: any) {
+    setMessage({
+      type: "error",
+      text: error.response?.data?.message || "Error saving doctor",
+    });
+  }
+};
+
 
   const handleEdit = (doctor: Doctor) => {
     setEditingDoctor(doctor);
@@ -90,6 +97,7 @@ const DoctorManagement = () => {
       specialization: doctor.specialization,
       phone: doctor.phone,
       hospitalName: doctor.hospitalName,
+      password: "", // ⬅ password empty for editing
     });
     setShowForm(true);
   };
@@ -113,6 +121,7 @@ const DoctorManagement = () => {
       specialization: "",
       phone: "",
       hospitalName: "",
+      password: "", // ⬅ reset password
     });
     setShowForm(false);
   };
@@ -133,7 +142,7 @@ const DoctorManagement = () => {
         <div className="w-24 h-1 mt-2 bg-blue-600 rounded-full"></div>
       </div>
 
-      {/* Success / Error Message */}
+      {/* Messages */}
       {message.text && (
         <div
           className={`mb-4 p-4 rounded-lg font-semibold text-white shadow-md ${
@@ -156,7 +165,9 @@ const DoctorManagement = () => {
               (field) => (
                 <div key={field}>
                   <label className="block mb-1 text-gray-600 font-medium">
-                    {field === "hospitalName" ? "Hospital Name" : field.charAt(0).toUpperCase() + field.slice(1)}
+                    {field === "hospitalName"
+                      ? "Hospital Name"
+                      : field.charAt(0).toUpperCase() + field.slice(1)}
                   </label>
                   <input
                     type={field === "email" ? "email" : "text"}
@@ -169,6 +180,22 @@ const DoctorManagement = () => {
                 </div>
               )
             )}
+
+            {/* PASSWORD FIELD */}
+            <div className="md:col-span-2">
+              <label className="block mb-1 text-gray-600 font-medium">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder={
+                  editingDoctor ? "Enter new password (optional)" : "Enter password"
+                }
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                required={!editingDoctor} // required ONLY when creating
+              />
+            </div>
 
             <div className="md:col-span-2 flex justify-end">
               <button

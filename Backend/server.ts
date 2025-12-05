@@ -16,9 +16,9 @@ const app = express();
 // ✅ CORS CONFIGURATION
 // -----------------------------
 const allowedOrigins = [
-  "http://localhost:5173",  // Vite default port
-  "http://localhost:3000",  // Alternative port
-  "http://localhost:5174",  // Vite alternative port
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:5174",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:3000",
 ];
@@ -26,18 +26,14 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) !== -1) {
+      if (!origin) return callback(null, true); // Allow curl, mobile apps
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
         callback(null, true);
       } else {
-        // In development, allow any localhost origin
-        if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
-          callback(null, true);
-        } else {
-          callback(new Error("Not allowed by CORS"));
-        }
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
@@ -59,7 +55,10 @@ app.use(express.urlencoded({ extended: true }));
 const MONGO_URI = process.env.MONGO_URI as string;
 
 mongoose
-  .connect(MONGO_URI)
+  .connect(MONGO_URI, {
+    tls: MONGO_URI.startsWith("mongodb+srv://"), // enable TLS only for Atlas
+    // tlsAllowInvalidCertificates: true // Uncomment only for testing local SSL issues
+  })
   .then(() => console.log("✅ MongoDB Connected Successfully"))
   .catch((err) => {
     console.error("❌ MongoDB Connection Error:", err);
@@ -97,20 +96,20 @@ app.use((req, res) => {
 // -----------------------------
 const PORT = Number(process.env.PORT) || 5000;
 
-const server = app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 API available at http://localhost:${PORT}/api`);
   console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🌐 CORS enabled for: ${allowedOrigins.join(', ')}`);
+  console.log(`🌐 CORS enabled for: ${allowedOrigins.join(", ")}`);
 });
 
 // Handle server errors
-server.on('error', (error: NodeJS.ErrnoException) => {
-  if (error.code === 'EADDRINUSE') {
+server.on("error", (error: NodeJS.ErrnoException) => {
+  if (error.code === "EADDRINUSE") {
     console.error(`❌ Port ${PORT} is already in use. Please use a different port.`);
     process.exit(1);
   } else {
-    console.error('❌ Server error:', error);
+    console.error("❌ Server error:", error);
     process.exit(1);
   }
 });
