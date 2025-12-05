@@ -15,7 +15,6 @@ interface Doctor {
 interface FormData {
   name: string;
   email: string;
-  password: string;
   specialization: string;
   phone: string;
   hospitalName: string;
@@ -36,7 +35,6 @@ const DoctorManagement = () => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
-    password: "",
     specialization: "",
     phone: "",
     hospitalName: "",
@@ -68,10 +66,10 @@ const DoctorManagement = () => {
         await doctorAPI.updateDoctor(editingDoctor._id, formData);
         setMessage({ type: "success", text: "Doctor updated successfully" });
       } else {
-        const response = await doctorAPI.createDoctor(formData);
+        await doctorAPI.createDoctor(formData);
         setMessage({
           type: "success",
-          text: `Doctor created! Password: ${response.data.password}`,
+          text: "Doctor created successfully",
         });
       }
       resetForm();
@@ -89,7 +87,6 @@ const DoctorManagement = () => {
     setFormData({
       name: doctor.name,
       email: doctor.email,
-      password: "",
       specialization: doctor.specialization,
       phone: doctor.phone,
       hospitalName: doctor.hospitalName,
@@ -113,7 +110,6 @@ const DoctorManagement = () => {
     setFormData({
       name: "",
       email: "",
-      password: "",
       specialization: "",
       phone: "",
       hospitalName: "",
@@ -156,19 +152,19 @@ const DoctorManagement = () => {
           </h2>
 
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {["name", "email", "password", "specialization", "phone", "hospitalName"].map(
+            {["name", "email", "specialization", "phone", "hospitalName"].map(
               (field) => (
                 <div key={field}>
                   <label className="block mb-1 text-gray-600 font-medium">
-                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                    {field === "hospitalName" ? "Hospital Name" : field.charAt(0).toUpperCase() + field.slice(1)}
                   </label>
                   <input
-                    type={field === "email" ? "email" : field === "password" ? "password" : "text"}
+                    type={field === "email" ? "email" : "text"}
                     name={field}
                     value={formData[field as keyof FormData]}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
-                    required={field !== "password"}
+                    required
                   />
                 </div>
               )

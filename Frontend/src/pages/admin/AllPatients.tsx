@@ -5,6 +5,7 @@ import AdminLayout from "../../components/Layout/AdminLayout";
 interface Doctor {
   _id: string;
   name: string;
+  hospitalName?: string;
 }
 
 interface PrescriptionItem {
@@ -89,7 +90,7 @@ const AllPatients = () => {
                   <td className="p-3">{patient.gender}</td>
                   <td className="p-3">{patient.phone}</td>
                   <td className="p-3">{patient.doctor?.name || "N/A"}</td>
-                  <td className="p-3">{patient.hospitalName}</td>
+                  <td className="p-3">{patient.doctor?.hospitalName || "N/A"}</td>
                   <td className="p-3">{patient.complaint}</td>
                   <td className="p-3">{formatDate(patient.registrationDate)}</td>
                   <td className="p-3">

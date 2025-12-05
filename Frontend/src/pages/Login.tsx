@@ -54,7 +54,18 @@ const Login = () => {
         setError('Unknown role, contact administrator');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      console.error('Login error:', err);
+      
+      // Handle network/connection errors
+      if (err.code === 'ERR_NETWORK' || err.message?.includes('connect')) {
+        setError('Cannot connect to server. Please ensure the backend server is running on port 5000.');
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

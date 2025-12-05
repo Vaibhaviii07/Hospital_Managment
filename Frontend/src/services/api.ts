@@ -5,7 +5,10 @@ import { getAuthToken, removeAuthToken, removeUser } from '../utils/auth';
 
 
 // Base URL from environment variable
-const API_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+// In development, explicitly use http://localhost:5000/api
+// For production, set VITE_API_URL to your API server URL
+const API_URL: string = import.meta.env.VITE_API_URL || 
+  (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api');
 
 // Create Axios instance
 const api = axios.create({
@@ -28,15 +31,28 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle 401
+// Response interceptor to handle errors
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
+    // Handle 401 Unauthorized
     if (error.response?.status === 401) {
       removeAuthToken();
       removeUser();
       window.location.href = '/login';
     }
+    
+    // Handle network errors (connection refused, etc.)
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      console.error('Network Error: Unable to connect to the server. Make sure the backend server is running.');
+      console.error(`Attempted to connect to: ${backendUrl}`);
+      return Promise.reject({
+        ...error,
+        message: `Unable to connect to the server at ${backendUrl}. Please ensure the backend server is running on port 5000.`,
+      });
+    }
+    
     return Promise.reject(error);
   }
 );

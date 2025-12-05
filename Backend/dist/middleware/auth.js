@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.protect = void 0;
+exports.doctorOnly = exports.adminOnly = exports.protect = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const protect = async (req, res, next) => {
@@ -23,3 +23,19 @@ const protect = async (req, res, next) => {
     }
 };
 exports.protect = protect;
+const adminOnly = (req, res, next) => {
+    const user = req.user;
+    if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin only.' });
+    }
+    next();
+};
+exports.adminOnly = adminOnly;
+const doctorOnly = (req, res, next) => {
+    const user = req.user;
+    if (!user || user.role !== 'doctor') {
+        return res.status(403).json({ message: 'Access denied. Doctor only.' });
+    }
+    next();
+};
+exports.doctorOnly = doctorOnly;

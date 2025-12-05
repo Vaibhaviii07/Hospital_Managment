@@ -10,5 +10,6 @@ const doctorSchema = new mongoose_1.default.Schema({
     specialization: { type: String, required: true },
     phone: { type: String },
     hospitalName: { type: String, required: true },
+    user: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 exports.default = mongoose_1.default.model('Doctor', doctorSchema);

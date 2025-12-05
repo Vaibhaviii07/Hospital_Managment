@@ -73,7 +73,11 @@ const PatientRegistration = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await patientAPI.registerPatient(formData);
+      const patientData = {
+        ...formData,
+        age: parseInt(formData.age) || 0,
+      };
+      await patientAPI.registerPatient(patientData);
       setMessage({
         type: "success",
         text: "Patient registered successfully",

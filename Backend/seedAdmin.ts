@@ -1,14 +1,24 @@
 import dotenv from "dotenv";
-import connectDB from "./config/db.js";
-import User from "./models/User.js";
+import mongoose from "mongoose";
+import User from "./models/User";
 
 dotenv.config();
 
 const seedAdmin = async () => {
   try {
-    await connectDB(); // connect using your existing function
+    // Connect to MongoDB
+    await mongoose.connect(process.env.MONGO_URI || "");
+    console.log("✅ MongoDB Connected for seeding");
 
+    // Check if admin already exists
+    const existingAdmin = await User.findOne({ email: "dipanshukale2003@gmail.com" });
+    if (existingAdmin) {
+      console.log("⚠️ Admin already exists with this email");
+      process.exit(0);
+      return;
+    }
 
+    // Create admin
     const admin = await User.create({
       name: "Super Admin",
       email: "dipanshukale2003@gmail.com",
@@ -16,10 +26,15 @@ const seedAdmin = async () => {
       role: "admin",
     });
 
-    console.log("Admin created:", admin);
+    console.log("✅ Admin created successfully:", {
+      _id: admin._id,
+      name: admin.name,
+      email: admin.email,
+      role: admin.role,
+    });
     process.exit(0);
-  } catch (error) {
-    console.error("Error seeding admin:", error);
+  } catch (error: any) {
+    console.error("❌ Error seeding admin:", error.message);
     process.exit(1);
   }
 };
